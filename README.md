@@ -27,7 +27,27 @@ Before deploying, ensure you have:
 
 ## Step-by-Step Deployment Guide
 
-### 1. System Setup
+### For Kali Linux
+
+```bash
+# Update system packages
+sudo apt update && sudo apt upgrade -y
+
+# Install required system packages
+sudo apt install -y python3-pip python3-venv git nginx
+
+# Install MongoDB (Kali Linux specific)
+sudo apt install -y mongodb
+
+# Start MongoDB service
+sudo systemctl start mongodb
+sudo systemctl enable mongodb
+
+# Verify MongoDB is running
+sudo systemctl status mongodb
+```
+
+### For Ubuntu/Debian
 
 ```bash
 # Update system packages
@@ -114,7 +134,7 @@ Add the following content:
 ```ini
 [Unit]
 Description=Telegram Group Management Bot
-After=network.target mongod.service
+After=network.target mongodb.service
 
 [Service]
 Type=simple
@@ -180,6 +200,39 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
+## Kali Linux Specific Notes
+
+1. **Firewall Configuration**
+   ```bash
+   # Allow MongoDB port
+   sudo ufw allow 27017
+   
+   # Allow bot port (if using webhook)
+   sudo ufw allow 8443
+   ```
+
+2. **SELinux Configuration** (if enabled)
+   ```bash
+   # Allow MongoDB
+   sudo setsebool -P mongodb_tcp_network_connect 1
+   ```
+
+3. **Python Package Dependencies**
+   ```bash
+   # Install additional system dependencies
+   sudo apt install -y python3-dev libffi-dev
+   ```
+
+4. **MongoDB Security**
+   ```bash
+   # Edit MongoDB configuration
+   sudo nano /etc/mongodb.conf
+   
+   # Add/modify these lines
+   bind_ip = 127.0.0.1
+   auth = true
+   ```
+
 ## Maintenance
 
 ### Updating the Bot
@@ -217,7 +270,7 @@ mongorestore --uri="mongodb://botuser:your_password@localhost:27017/group_manage
 1. **Bot not starting**
    - Check logs: `sudo journalctl -u telegram-bot -f`
    - Verify .env file configuration
-   - Ensure MongoDB is running: `sudo systemctl status mongod`
+   - Ensure MongoDB is running: `sudo systemctl status mongodb`
 
 2. **Database connection issues**
    - Verify MongoDB is running
