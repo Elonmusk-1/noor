@@ -15,18 +15,8 @@ class Config:
     OWNER_ID = int(os.getenv("OWNER_ID"))
     SUDO_USERS = list(map(int, os.getenv("SUDO_USERS", "").split())) if os.getenv("SUDO_USERS") else []
     
-    # Database Configuration
-    DB_HOST = os.getenv("DB_HOST", "localhost")
-    DB_PORT = os.getenv("DB_PORT", "5432")
-    DB_NAME = os.getenv("DB_NAME", "postgres")
-    DB_USER = os.getenv("DB_USER", "postgres")
-    DB_PASSWORD = os.getenv("DB_PASSWORD", "")
-    
-    # Construct Database URL with SSL mode
-    DATABASE_URL = (
-        f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        "?sslmode=require"
-    )
+    # MongoDB Configuration
+    MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/group_manager")
     
     # Channel/Group Configuration
     LOG_CHANNEL = int(os.getenv("LOG_CHANNEL", "0"))
@@ -62,8 +52,8 @@ class Config:
         # Validate required settings
         if not cls.BOT_TOKEN:
             raise ValueError("BOT_TOKEN is not set in environment variables")
-        if not cls.DATABASE_URL:
-            raise ValueError("Database URL could not be constructed. Check database settings.")
+        if not cls.MONGODB_URI:
+            raise ValueError("MONGODB_URI is not set in environment variables")
         if not cls.LOG_CHANNEL:
             raise ValueError("LOG_CHANNEL is not set in environment variables")
         if not cls.OWNER_ID:

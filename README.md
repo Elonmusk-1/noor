@@ -20,7 +20,7 @@ A powerful and feature-rich Telegram bot for managing groups with advanced featu
 Before deploying, ensure you have:
 
 - Python 3.8 or higher
-- PostgreSQL database
+- MongoDB database
 - Telegram Bot Token (from [@BotFather](https://t.me/BotFather))
 - Gemini API Key (for AI features)
 - Linux server with root access
@@ -34,26 +34,34 @@ Before deploying, ensure you have:
 sudo apt update && sudo apt upgrade -y
 
 # Install required system packages
-sudo apt install -y python3-pip python3-venv postgresql postgresql-contrib git nginx
+sudo apt install -y python3-pip python3-venv git nginx
 
-# Start PostgreSQL service
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
+# Install MongoDB
+wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+sudo apt update
+sudo apt install -y mongodb-org
+
+# Start MongoDB service
+sudo systemctl start mongod
+sudo systemctl enable mongod
 ```
 
 ### 2. Database Setup
 
 ```bash
-# Switch to PostgreSQL user
-sudo -i -u postgres
+# Start MongoDB shell
+mongosh
 
 # Create database and user
-psql -c "CREATE DATABASE group_manager;"
-psql -c "CREATE USER botuser WITH PASSWORD 'your_password';"
-psql -c "GRANT ALL PRIVILEGES ON DATABASE group_manager TO botuser;"
-psql -c "\q"
+use group_manager
+db.createUser({
+  user: "botuser",
+  pwd: "your_password",
+  roles: [{ role: "readWrite", db: "group_manager" }]
+})
 
-# Exit postgres user
+# Exit MongoDB shell
 exit
 ```
 
@@ -89,11 +97,7 @@ API_ID=your_api_id
 API_HASH=your_api_hash
 OWNER_ID=your_telegram_id
 SUDO_USERS=id1,id2,id3
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=group_manager
-DB_USER=botuser
-DB_PASSWORD=your_password
+MONGODB_URI=mongodb://botuser:your_password@localhost:27017/group_manager
 LOG_CHANNEL=your_log_channel_id
 SUPPORT_CHAT=your_support_chat
 GEMINI_API_KEY=your_gemini_api_key
@@ -110,7 +114,7 @@ Add the following content:
 ```ini
 [Unit]
 Description=Telegram Group Management Bot
-After=network.target postgresql.service
+After=network.target mongod.service
 
 [Service]
 Type=simple
@@ -202,10 +206,10 @@ tail -f /opt/telegram_bot/logs/bot.log
 
 ```bash
 # Create backup
-pg_dump -U botuser group_manager > backup.sql
+mongodump --uri="mongodb://botuser:your_password@localhost:27017/group_manager" --out=/backup/path
 
 # Restore backup
-psql -U botuser group_manager < backup.sql
+mongorestore --uri="mongodb://botuser:your_password@localhost:27017/group_manager" /backup/path
 ```
 
 ## Troubleshooting
@@ -213,11 +217,11 @@ psql -U botuser group_manager < backup.sql
 1. **Bot not starting**
    - Check logs: `sudo journalctl -u telegram-bot -f`
    - Verify .env file configuration
-   - Ensure database is running: `sudo systemctl status postgresql`
+   - Ensure MongoDB is running: `sudo systemctl status mongod`
 
 2. **Database connection issues**
-   - Verify PostgreSQL is running
-   - Check database credentials in .env
+   - Verify MongoDB is running
+   - Check MongoDB connection string in .env
    - Ensure database user has proper permissions
 
 3. **Permission issues**
