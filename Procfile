@@ -1,0 +1,1 @@
+worker: python3 -m Group_Manager.main 

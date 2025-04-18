@@ -1,0 +1,6 @@
+# Add Python to the PATH
+$env:Path = "C:\Users\user\AppData\Local\Programs\Python\Python313;C:\Users\user\AppData\Local\Programs\Python\Python313\Scripts;" + $env:Path
+
+# Set Python environment variables
+$env:PYTHON_HOME = "C:\Users\user\AppData\Local\Programs\Python\Python313"
+$env:PYTHONPATH = "C:\Users\user\AppData\Local\Programs\Python\Python313\Lib;C:\Users\user\AppData\Local\Programs\Python\Python313\DLLs" 

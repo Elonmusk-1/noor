@@ -1,0 +1,6 @@
+pyrogram==2.0.106
+tgcrypto==1.2.5
+pymongo==4.6.1
+python-dotenv==1.0.0
+asyncio==3.4.3
+cryptography==42.0.2 
