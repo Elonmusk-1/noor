@@ -16,7 +16,7 @@ class Config:
     SUDO_USERS = list(map(int, os.getenv("SUDO_USERS", "").split())) if os.getenv("SUDO_USERS") else []
     
     # MongoDB Configuration
-    MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/group_manager")
+    MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://user:user@cluster0.hmpndmh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
     
     # Channel/Group Configuration
     LOG_CHANNEL = int(os.getenv("LOG_CHANNEL", "0"))
@@ -61,6 +61,7 @@ class Config:
         
         logger.info(f"Bot initialized with Owner ID: {cls.OWNER_ID}")
         logger.info(f"Super users (DRAGONS): {cls.DRAGONS}")
+        logger.info(f"Using MongoDB Atlas: {cls.MONGODB_URI.split('@')[1]}")  # Log only the host part for security
 
         # Any initialization if needed
         pass 
